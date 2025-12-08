@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>方案决策与执行 - KOL智能匹配系统</title>
+    <style>
+        /* 共享样式 - 与首页相同的导航和基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 导航栏 */
+        header {
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        nav ul li a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        /* 页面特定样式 */
+        .page-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background-color: #2196F3;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            background-color: #0d8bf2;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .comparison-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 3rem;
+        }
+
+        .comparison-filters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .filter-group select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+        }
+
+        .plan-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .plan-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .plan-card:hover {
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+        }
+
+        .plan-card.recommended {
+            border: 2px solid #4CAF50;
+            background-color: #f8fff8;
+        }
+
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .plan-card.recommended .plan-header {
+            border-bottom-color: #c8e6c9;
+        }
+
+        .plan-header h3 {
+            color: #2c3e50;
+            margin: 0;
+            flex: 1;
+        }
+
+        .badge {
+            padding: 0.3rem 0.8rem;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .plan-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 0.8rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .metric .label {
+            display: block;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.3rem;
+        }
+
+        .metric .value {
+            display: block;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2196F3;
+        }
+
+        .metric .value.high {
+            color: #4CAF50;
+        }
+
+        .btn-select {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-select:hover {
+            background-color: #3d8b40;
+        }
+
+        .execution-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 3rem;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 2rem auto 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #2196F3;
+        }
+
+        .timeline-step {
+            display: flex;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .step-circle {
+            width: 60px;
+            height: 60px;
+            background-color: #2196F3;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 2rem;
+            z-index: 1;
+        }
+
+        .timeline-step.current .step-circle {
+            background-color: #4CAF50;
+            box-shadow: 0 0 0 5px rgba(76, 175, 80, 0.2);
+        }
+
+        .timeline-step.completed .step-circle {
+            background-color: #8BC34A;
+        }
+
+        .step-content {
+            flex: 1;
+            padding: 0.5rem 0;
+        }
+
+        .step-content h4 {
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .step-content p {
+            color: #666;
+            margin-bottom: 0.3rem;
+        }
+
+        .step-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+        }
+
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 3rem 0 1.5rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .copyright {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.7);
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+            }
+
+            nav ul {
+                margin-top: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            nav ul li {
+                margin: 0.3rem;
+            }
+
+            .plan-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-filters {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .step-circle {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+                margin-right: 1rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<!-- 导航栏 -->
+<header>
+    <div class="container nav-container">
+        <div class="logo">
+            <span class="logo-icon">🤖</span>
+            <span>KOL智能匹配系统</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">首页</a></li>
+                <li><a href="match.html">智能匹配</a></li>
+                <li><a href="decision.html">方案决策</a></li>
+                <li><a href="evaluation.html">效果评估</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<!-- 页面标题 -->
+<section class="page-header">
+    <div class="container">
+        <h1>方案决策与执行</h1>
+        <p>可视化对比多种合作方案，选择最优策略并跟踪执行进度</p>
+    </div>
+</section>
+
+<!-- 方案对比 -->
+<div class="container">
+    <div class="comparison-section">
+        <h2 style="margin-bottom: 1rem; color: #2c3e50;">合作方案对比</h2>
+        <p style="margin-bottom: 1.5rem; color: #666;">基于智能匹配结果，系统生成多套合作方案供您选择</p>
+
+        <div class="comparison-filters">
+            <div class="filter-group">
+                <label for="sort-plans">排序方式：</label>
+                <select id="sort-plans">
+                    <option value="score">综合评分</option>
+                    <option value="roi">预估ROI</option>
+                    <option value="budget">预算</option>
+                    <option value="traffic">预估客流</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <span>共 <strong>4</strong> 个推荐方案</span>
+            </div>
+        </div>
+
+        <div class="plan-cards">
+            <!-- 方案A -->
+            <div class="plan-card recommended">
+                <div class="plan-header">
+                    <h3>方案A：@美食探探 + @吃货小分队</h3>
+                    <span class="badge">推荐方案</span>
+                </div>
+                <div class="plan-metrics">
+                    <div class="metric">
+                        <span class="label">综合匹配度</span>
+                        <span class="value high">92%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">预估到店客流</span>
+                        <span class="value">+420人</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">预估核销率</span>
+                        <span class="value high">82%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">总预算</span>
+                        <span class="value">8.5万元</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">预估ROI</span>
+                        <span class="value high">3.8</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">执行周期</span>
+                        <span class="value">12天</span>
+                    </div>
+                </div>
+                <button class="btn-select" onclick="selectPlan('A')">
+                    <i class="fas fa-check"></i> 选择此方案
+                </button>
+            </div>
+
+            <!-- 方案B -->
+            <div class="plan-card">
+                <div class="plan-header">
+                    <h3>方案B：@美食探探 + @探店王大哥</h3>
+                </div>
+                <div class="plan-metrics">
+                    <div class="metric">
+                        <span class="label">综合匹配度</span>
+                        <span class="value">88%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">预估到店客流</span>
+                        <span class="value">+380人</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">预估核销率</span>
+                        <span class="value">78%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">总预算</span>
+                        <span class="value">9.2万元</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">预估ROI</span>
+                        <span class="value">3.2</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">执行周期</span>
+                        <span class="value">10天</span>
+                    </div>
+                </div>
+                <button class="btn-select" onclick="selectPlan('B')">
+                    <i class="fas fa-check"></i> 选择此方案
+                </button>
+            </div>
+
+            <!-- 方案C -->
+            <div class="plan-card">
+                <div class="plan-header">
+                    <h3>方案C：@吃货小分队 + @美食日记</h3>
+                </div>
+                <div class="plan-metrics">
+                    <div class="metric">
+                        <span class="label">综合匹配度</span>
+                        <span class="value">85%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">预估到店客流</span>
+                        <span class="value">+350人</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">预估核销率</span>
+                        <span class="value">75%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">总预算</span>
+                        <span class="value">7.8万元</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">预估ROI</span>
+                        <span class="value">3.5</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">执行周期</span>
+                        <span class="value">14天</span>
+                    </div>
+                </div>
+                <button class="btn-select" onclick="selectPlan('C')">
+                    <i class="fas fa-check"></i> 选择此方案
+                </button>
+            </div>
+
+            <!-- 方案D -->
+            <div class="plan-card">
+                <div class="plan-header">
+                    <h3>方案D：@探店王大哥单人合作</h3>
+                </div>
+                <div class="plan-metrics">
+                    <div class="metric">
+                        <span class="label">综合匹配度</span>
+                        <span class="value">79%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">预估到店客流</span>
+                        <span class="value">+280人</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">预估核销率</span>
+                        <span class="value">72%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">总预算</span>
+                        <span class="value">4.5万元</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">预估ROI</span>
+                        <span class="value">2.8</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">执行周期</span>
+                        <span class="value">8天</span>
+                    </div>
+                </div>
+                <button class="btn-select" onclick="selectPlan('D')">
+                    <i class="fas fa-check"></i> 选择此方案
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 执行时间线 -->
+    <div class="execution-section">
+        <h2 style="margin-bottom: 1rem; color: #2c3e50;">合作执行时间线</h2>
+        <p style="margin-bottom: 1.5rem; color: #666;">选择方案后，系统将自动生成执行计划并跟踪进度</p>
+
+        <div class="timeline">
+            <div class="timeline-step completed">
+                <div class="step-circle">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="step-content">
+                    <h4>方案确认</h4>
+                    <p>与达人沟通合作细节，确认最终方案</p>
+                    <p><strong>预计耗时：</strong> 1-2天</p>
+                    <span class="step-status">已完成</span>
+                </div>
+            </div>
+
+            <div class="timeline-step current">
+                <div class="step-circle">2</div>
+                <div class="step-content">
+                    <h4>内容制作</h4>
+                    <p>达人实地探店，拍摄并制作内容</p>
+                    <p><strong>预计耗时：</strong> 3-5天</p>
+                    <span class="step-status">进行中</span>
+                </div>
+            </div>
+
+            <div class="timeline-step">
+                <div class="step-circle">3</div>
+                <div class="step-content">
+                    <h4>内容发布</h4>
+                    <p>在抖音、小红书等平台发布内容</p>
+                    <p><strong>预计耗时：</strong> 1天</p>
+                    <span class="step-status">未开始</span>
+                </div>
+            </div>
+
+            <div class="timeline-step">
+                <div class="step-circle">4</div>
+                <div class="step-content">
+                    <h4>流量导入</h4>
+                    <p>内容推广，引导用户到店消费</p>
+                    <p><strong>预计耗时：</strong> 7-14天</p>
+                    <span class="step-status">未开始</span>
+                </div>
+            </div>
+
+            <div class="timeline-step">
+                <div class="step-circle">5</div>
+                <div class="step-content">
+                    <h4>效果评估</h4>
+                    <p>收集数据，评估合作效果</p>
+                    <p><strong>预计耗时：</strong> 3-5天</p>
+                    <span class="step-status">未开始</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="btn" onclick="startExecution()" style="padding: 1rem 3rem; font-size: 1.1rem;">
+                <i class="fas fa-play"></i> 开始执行选定的方案
+            </button>
+        </div>
+    </div>
+
+    <!-- 导航按钮 -->
+    <div class="navigation-buttons">
+        <a href="match.html" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> 上一步：智能匹配
+        </a>
+        <a href="evaluation.html" class="btn">
+            下一步：效果评估 <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+</div>
+
+<!-- 页脚 -->
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>KOL智能匹配系统</h3>
+                <p>基于AI的餐饮行业KOL智能匹配解决方案，帮助餐饮企业实现精准营销。</p>
+            </div>
+            <div class="footer-section">
+                <h3>功能模块</h3>
+                <ul style="list-style: none;">
+                    <li><a href="match.html" style="color: #ddd; text-decoration: none;">智能匹配引擎</a></li>
+                    <li><a href="decision.html" style="color: #ddd; text-decoration: none;">方案决策与执行</a></li>
+                    <li><a href="evaluation.html" style="color: #ddd; text-decoration: none;">效果评估与优化</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>联系我们</h3>
+                <p>邮箱: zhuxinan1@crb.cn</p>
+                <p>润工作联系: 朱信安</p>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>© 2025 餐饮KOL智能匹配系统 - AI大赛决赛 概念演示版本</p>
+            <p>注：本系统为概念演示，用于展示核心功能和流程，非完整实现版本。</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // 方案排序功能
+    document.getElementById('sort-plans').addEventListener('change', function() {
+        const sortBy = this.value;
+        const planCards = document.querySelectorAll('.plan-card');
+        const cardsArray = Array.from(planCards);
+
+        // 移除推荐标签，重新排序
+        cardsArray.forEach(card => {
+            card.classList.remove('recommended');
+        });
+
+        // 根据选择的排序方式排序
+        cardsArray.sort((a, b) => {
+            let valueA, valueB;
+
+            switch(sortBy) {
+                case 'score':
+                    valueA = parseFloat(a.querySelector('.plan-metrics .metric:nth-child(1) .value').textContent);
+                    valueB = parseFloat(b.querySelector('.plan-metrics .metric:nth-child(1) .value').textContent);
+                    return valueB - valueA;
+
+                case 'roi':
+                    valueA = parseFloat(a.querySelector('.plan-metrics .metric:nth-child(5) .value').textContent);
+                    valueB = parseFloat(b.querySelector('.plan-metrics .metric:nth-child(5) .value').textContent);
+                    return valueB - valueA;
+
+                case 'budget':
+                    valueA = parseFloat(a.querySelector('.plan-metrics .metric:nth-child(4) .value').textContent);
+                    valueB = parseFloat(b.querySelector('.plan-metrics .metric:nth-child(4) .value').textContent);
+                    return valueA - valueB;
+
+                case 'traffic':
+                    valueA = parseFloat(a.querySelector('.plan-metrics .metric:nth-child(2) .value').textContent.replace('+', '').replace('人', ''));
+                    valueB = parseFloat(b.querySelector('.plan-metrics .metric:nth-child(2) .value').textContent.replace('+', '').replace('人', ''));
+                    return valueB - valueA;
+
+                default:
+                    return 0;
+            }
+        });
+
+        // 重新添加到容器中
+        const container = document.querySelector('.plan-cards');
+        container.innerHTML = '';
+        cardsArray.forEach((card, index) => {
+            if (index === 0) {
+                card.classList.add('recommended');
+                // 添加推荐标签
+                const planHeader = card.querySelector('.plan-header');
+                if (!planHeader.querySelector('.badge')) {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge';
+                    badge.textContent = '推荐方案';
+                    planHeader.appendChild(badge);
+                }
+            }
+            container.appendChild(card);
+        });
+    });
+
+    // 选择方案
+    function selectPlan(planId) {
+        // 移除所有方案的选中状态
+        document.querySelectorAll('.plan-card').forEach(card => {
+            card.classList.remove('recommended');
+        });
+
+        // 标记选中的方案
+        const selectedCard = document.querySelector(`.plan-card:nth-child(${planId === 'A' ? 1 : planId === 'B' ? 2 : planId === 'C' ? 3 : 4})`);
+        selectedCard.classList.add('recommended');
+
+        // 确保有推荐标签
+        const planHeader = selectedCard.querySelector('.plan-header');
+        if (!planHeader.querySelector('.badge')) {
+            const badge = document.createElement('span');
+            badge.className = 'badge';
+            badge.textContent = '已选择';
+            planHeader.appendChild(badge);
+        }
+
+        alert(`已选择方案 ${planId}，可以开始执行`);
+    }
+
+    // 开始执行
+    function startExecution() {
+        const selectedPlan = document.querySelector('.plan-card.recommended');
+        if (!selectedPlan) {
+            alert('请先选择一个方案');
+            return;
+        }
+
+        const planTitle = selectedPlan.querySelector('h3').textContent;
+        alert(`开始执行方案：${planTitle}\n\n执行进度将在时间线中更新，请前往效果评估页面查看实时数据。`);
+
+        // 更新时间线状态
+        const timelineSteps = document.querySelectorAll('.timeline-step');
+        timelineSteps.forEach((step, index) => {
+            if (index > 0) {
+                step.classList.remove('current', 'completed');
+                if (index === 1) {
+                    step.classList.add('current');
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

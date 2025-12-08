@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>效果评估与优化 - KOL智能匹配系统</title>
+    <style>
+        /* 共享样式 - 与首页相同的导航和基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 导航栏 */
+        header {
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        nav ul li a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        /* 页面特定样式 */
+        .page-header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background-color: #2196F3;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            background-color: #0d8bf2;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .metrics-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .metric-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric-card h4 {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2196F3;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-trend {
+            font-size: 0.9rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .metric-trend.up {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .metric-trend.down {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .charts-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 3rem;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .chart-container {
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 1rem;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f9f9f9;
+        }
+
+        .chart-placeholder {
+            text-align: center;
+            color: #666;
+        }
+
+        .chart-placeholder i {
+            font-size: 3rem;
+            color: #2196F3;
+            margin-bottom: 1rem;
+        }
+
+        .suggestions-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 3rem;
+        }
+
+        .suggestion-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .suggestion-card h5 {
+            margin-bottom: 0.8rem;
+            color: #2c3e50;
+        }
+
+        .suggestion-card p {
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+
+        .insight-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .insight-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            color: #4CAF50;
+            min-width: 30px;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+        }
+
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 3rem 0 1.5rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .copyright {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.7);
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+            }
+
+            nav ul {
+                margin-top: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            nav ul li {
+                margin: 0.3rem;
+            }
+
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<!-- 导航栏 -->
+<header>
+    <div class="container nav-container">
+        <div class="logo">
+            <span class="logo-icon">🤖</span>
+            <span>KOL智能匹配系统</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">首页</a></li>
+                <li><a href="match.html">智能匹配</a></li>
+                <li><a href="decision.html">方案决策</a></li>
+                <li><a href="evaluation.html">效果评估</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<!-- 页面标题 -->
+<section class="page-header">
+    <div class="container">
+        <h1>效果评估与优化</h1>
+        <p>数据回收与效果分析，模型自学习持续优化匹配精度</p>
+    </div>
+</section>
+
+<!-- 数据看板 -->
+<div class="container">
+    <div class="metrics-dashboard">
+        <div class="metric-card">
+            <h4>核销率</h4>
+            <div class="metric-value">82%</div>
+            <div class="metric-trend up">↑ 12% 相比上月</div>
+        </div>
+
+        <div class="metric-card">
+            <h4>到店客流</h4>
+            <div class="metric-value">1,245人</div>
+            <div class="metric-trend up">↑ 28% 相比上月</div>
+        </div>
+
+        <div class="metric-card">
+            <h4>转化成本</h4>
+            <div class="metric-value">¥68</div>
+            <div class="metric-trend down">↓ 15% 相比上月</div>
+        </div>
+
+        <div class="metric-card">
+            <h4>顾客满意度</h4>
+            <div class="metric-value">4.7/5</div>
+            <div class="metric-trend up">↑ 0.3 相比上月</div>
+        </div>
+
+        <div class="metric-card">
+            <h4>ROI</h4>
+            <div class="metric-value">3.8</div>
+            <div class="metric-trend up">↑ 0.7 相比上月</div>
+        </div>
+
+        <div class="metric-card">
+            <h4>内容互动率</h4>
+            <div class="metric-value">4.2%</div>
+            <div class="metric-trend up">↑ 1.1% 相比上月</div>
+        </div>
+    </div>
+
+    <!-- 可视化图表 -->
+    <div class="charts-section">
+        <h2 style="margin-bottom: 1rem; color: #2c3e50;">效果数据可视化</h2>
+        <p style="margin-bottom: 1.5rem; color: #666;">通过图表直观展示营销活动效果和趋势</p>
+
+        <div class="chart-grid">
+            <div>
+                <h3 style="margin-bottom: 1rem; color: #444;">合作效果趋势</h3>
+                <div class="chart-container">
+                    <div class="chart-placeholder">
+                        <i class="fas fa-chart-line"></i>
+                        <h4>效果趋势图表</h4>
+                        <p>此处将展示核销率、到店客流、转化成本等指标随时间的变化趋势</p>
+                        <p><small>在实际系统中，这里将显示交互式折线图</small></p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 style="margin-bottom: 1rem; color: #444;">达人表现对比</h3>
+                <div class="chart-container">
+                    <div class="chart-placeholder">
+                        <i class="fas fa-chart-bar"></i>
+                        <h4>达人表现对比图</h4>
+                        <p>对比不同达人的核销率、互动率、转化成本等表现指标</p>
+                        <p><small>在实际系统中，这里将显示柱状对比图</small></p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 style="margin-bottom: 1rem; color: #444;">客流来源分布</h3>
+                <div class="chart-container">
+                    <div class="chart-placeholder">
+                        <i class="fas fa-chart-pie"></i>
+                        <h4>客流来源分布图</h4>
+                        <p>展示不同渠道（抖音、小红书等）带来的客流占比</p>
+                        <p><small>在实际系统中，这里将显示饼图或环形图</small></p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 style="margin-bottom: 1rem; color: #444;">时段效果分析</h3>
+                <div class="chart-container">
+                    <div class="chart-placeholder">
+                        <i class="fas fa-chart-area"></i>
+                        <h4>时段效果分析图</h4>
+                        <p>分析不同时段发布的营销内容带来的效果差异</p>
+                        <p><small>在实际系统中，这里将显示面积图或热力图</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI优化建议 -->
+    <div class="suggestions-section">
+        <h2 style="margin-bottom: 1rem; color: #2c3e50;">AI优化建议</h2>
+        <p style="margin-bottom: 1.5rem; color: #666;">基于数据分析，系统自动生成优化建议，持续提升营销效果</p>
+
+        <div class="suggestion-card">
+            <h5>📊 数据洞察发现：</h5>
+            <div class="insight-item">
+                <div class="insight-icon">📈</div>
+                <div>
+                    <p><strong>探店类内容在周末发布效果更佳</strong></p>
+                    <p>数据显示，周五晚和周六上午发布的探店内容，核销率比工作日高出15-20%</p>
+                </div>
+            </div>
+
+            <div class="insight-item">
+                <div class="insight-icon">🎯</div>
+                <div>
+                    <p><strong>短视频形式更适合年轻客群</strong></p>
+                    <p>20-30岁客群对短视频内容的互动率比图文内容高出42%，转化率高出28%</p>
+                </div>
+            </div>
+
+            <div class="insight-item">
+                <div class="insight-icon">👥</div>
+                <div>
+                    <p><strong>@美食探探 的粉丝与您的目标客群高度匹配</strong></p>
+                    <p>该达人粉丝中，20-35岁女性占比78%，与您的门店客群画像匹配度达92%</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="suggestion-card" style="border-left-color: #2196F3; margin-top: 1.5rem;">
+            <h5>💡 优化建议：</h5>
+            <div class="insight-item">
+                <div class="insight-icon">🕒</div>
+                <div>
+                    <p><strong>调整内容发布时间</strong></p>
+                    <p>建议将探店内容发布时间从工作日下午调整至周五晚或周六上午，以提升15-20%的核销率</p>
+                </div>
+            </div>
+
+            <div class="insight-item">
+                <div class="insight-icon">📱</div>
+                <div>
+                    <p><strong>优化内容形式</strong></p>
+                    <p>针对20-30岁客群，建议增加短视频内容占比至70%以上，可提升28%的转化率</p>
+                </div>
+            </div>
+
+            <div class="insight-item">
+                <div class="insight-icon">🤝</div>
+                <div>
+                    <p><strong>深化与匹配度高的达人合作</strong></p>
+                    <p>建议与@美食探探建立长期合作关系，可尝试合作定制化内容，预计可将ROI提升至4.2以上</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="btn" onclick="applyOptimizations()" style="padding: 1rem 3rem; font-size: 1.1rem;">
+                <i class="fas fa-magic"></i> 一键应用优化建议
+            </button>
+        </div>
+    </div>
+
+    <!-- 模型优化效果 -->
+    <div class="suggestions-section">
+        <h2 style="margin-bottom: 1rem; color: #2c3e50;">模型优化效果</h2>
+        <p style="margin-bottom: 1.5rem; color: #666;">AI模型基于历史数据进行自学习，持续提升匹配精度</p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+            <div style="background-color: #f0f7ff; padding: 1.5rem; border-radius: 8px;">
+                <h4 style="color: #2196F3; margin-bottom: 0.8rem;">匹配精度提升</h4>
+                <p>经过3个月的数据积累和模型训练，匹配精度从初始的72%提升至89%</p>
+                <div style="display: flex; align-items: center; margin-top: 1rem;">
+                    <div style="flex: 1; height: 10px; background-color: #e0e0e0; border-radius: 5px; overflow: hidden;">
+                        <div style="width: 89%; height: 100%; background-color: #4CAF50;"></div>
+                    </div>
+                    <span style="margin-left: 1rem; font-weight: bold; color: #4CAF50;">89%</span>
+                </div>
+            </div>
+
+            <div style="background-color: #f0f7ff; padding: 1.5rem; border-radius: 8px;">
+                <h4 style="color: #2196F3; margin-bottom: 0.8rem;">错配率下降</h4>
+                <p>错配率从初始的63%下降至24%，大幅提升合作效果</p>
+                <div style="display: flex; align-items: center; margin-top: 1rem;">
+                    <div style="flex: 1; height: 10px; background-color: #e0e0e0; border-radius: 5px; overflow: hidden;">
+                        <div style="width: 24%; height: 100%; background-color: #FF9800;"></div>
+                    </div>
+                    <span style="margin-left: 1rem; font-weight: bold; color: #FF9800;">24%</span>
+                </div>
+            </div>
+
+            <div style="background-color: #f0f7ff; padding: 1.5rem; border-radius: 8px;">
+                <h4 style="color: #2196F3; margin-bottom: 0.8rem;">平均ROI提升</h4>
+                <p>平均ROI从2.8提升至3.8，营销投入回报率显著提高</p>
+                <div style="display: flex; align-items: center; margin-top: 1rem;">
+                    <div style="flex: 1; height: 10px; background-color: #e0e0e0; border-radius: 5px; overflow: hidden;">
+                        <div style="width: 76%; height: 100%; background-color: #2196F3;"></div>
+                    </div>
+                    <span style="margin-left: 1rem; font-weight: bold; color: #2196F3;">3.8</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导航按钮 -->
+    <div class="navigation-buttons">
+        <a href="decision.html" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> 上一步：方案决策
+        </a>
+        <a href="index.html" class="btn">
+            返回首页 <i class="fas fa-home"></i>
+        </a>
+    </div>
+</div>
+
+<!-- 页脚 -->
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>KOL智能匹配系统</h3>
+                <p>基于AI的餐饮行业KOL智能匹配解决方案，帮助餐饮企业实现精准营销。</p>
+            </div>
+            <div class="footer-section">
+                <h3>功能模块</h3>
+                <ul style="list-style: none;">
+                    <li><a href="match.html" style="color: #ddd; text-decoration: none;">智能匹配引擎</a></li>
+                    <li><a href="decision.html" style="color: #ddd; text-decoration: none;">方案决策与执行</a></li>
+                    <li><a href="evaluation.html" style="color: #ddd; text-decoration: none;">效果评估与优化</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>联系我们</h3>
+                <p>邮箱: zhuxinan1@crb.cn</p>
+                <p>润工作联系: 朱信安</p>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>© 2025 餐饮KOL智能匹配系统 - AI大赛决赛 概念演示版本</p>
+            <p>注：本系统为概念演示，用于展示核心功能和流程，非完整实现版本。</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // 模拟应用优化建议
+    function applyOptimizations() {
+        // 更新指标数据
+        const metrics = document.querySelectorAll('.metric-value');
+        const trends = document.querySelectorAll('.metric-trend');
+
+        // 模拟优化后的数据提升
+        metrics[0].textContent = '85%'; // 核销率提升
+        metrics[1].textContent = '1,380人'; // 到店客流提升
+        metrics[2].textContent = '¥62'; // 转化成本降低
+        metrics[4].textContent = '4.1'; // ROI提升
+
+        // 更新趋势文本
+        trends[0].innerHTML = '↑ 15% 应用优化后';
+        trends[1].innerHTML = '↑ 35% 应用优化后';
+        trends[2].innerHTML = '↓ 18% 应用优化后';
+        trends[4].innerHTML = '↑ 1.0 应用优化后';
+
+        // 显示成功消息
+        alert('优化建议已成功应用！\n\n系统将根据新的策略调整后续的匹配和投放计划。\n\n预计优化效果将在下一轮营销活动中体现。');
+
+        // 更新模型优化效果
+        const modelMetrics = document.querySelectorAll('.suggestions-section:last-child .metric-value');
+        modelMetrics[0].textContent = '92%';
+        modelMetrics[1].textContent = '21%';
+        modelMetrics[2].textContent = '4.1';
+
+        // 更新进度条
+        const progressBars = document.querySelectorAll('.suggestions-section:last-child div[style*="width:"]');
+        progressBars[0].style.width = '92%';
+        progressBars[0].style.backgroundColor = '#4CAF50';
+
+        progressBars[1].style.width = '21%';
+        progressBars[1].style.backgroundColor = '#FF9800';
+
+        progressBars[2].style.width = '82%';
+        progressBars[2].style.backgroundColor = '#2196F3';
+    }
+</script>
+</body>
+</html>

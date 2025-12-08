@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOL智能匹配系统 - 精准连接餐饮门店与优质达人</title>
+    <style>
+        /* 基础重置与变量 */
+        :root {
+            --primary-color: #4361ee;
+            --primary-light: #e0e7ff;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --success-color: #4cc9f0;
+            --text-primary: #2b2d42;
+            --text-secondary: #6c757d;
+            --text-light: #adb5bd;
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --bg-gradient: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 20px 25px rgba(0, 0, 0, 0.12);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-size: 16px;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* 顶部导航栏 - 现代化设计 */
+        .header {
+            background-color: var(--bg-secondary);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 16px 0;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--bg-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            color: white;
+            font-size: 24px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 800;
+            background: var(--bg-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-secondary);
+            padding: 10px 0;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-links a.active {
+            color: var(--primary-color);
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--bg-gradient);
+            border-radius: 3px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            background-color: var(--primary-light);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .user-info:hover {
+            background-color: #d5deff;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* 主内容区 */
+        .main-content {
+            padding: 60px 0 100px;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .hero-title {
+            font-size: 52px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            background: var(--bg-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        /* 核心匹配区域 - 现代化卡片设计 */
+        .match-container {
+            max-width: 1200px;
+            margin: 0 auto 80px;
+        }
+
+        .match-card {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            padding: 48px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .match-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: var(--bg-gradient);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 36px;
+        }
+
+        .section-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-light);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            color: var(--primary-color);
+            font-size: 28px;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            background-color: #f8f9fa;
+            transition: var(--transition);
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .budget-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .budget-slider {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e9ecef;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .budget-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(67, 97, 238, 0.3);
+        }
+
+        .budget-value {
+            min-width: 100px;
+            font-weight: 700;
+            font-size: 24px;
+            color: var(--primary-color);
+            text-align: right;
+        }
+
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 30px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tag:hover {
+            background-color: var(--primary-light);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .tag.active {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 18px 40px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .btn-primary {
+            background: var(--bg-gradient);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-3px);
+        }
+
+        .match-stats {
+            text-align: center;
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-top: 20px;
+        }
+
+        /* 功能卡片区域 */
+        .features-section {
+            margin-bottom: 80px;
+        }
+
+        .section-intro {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 60px;
+        }
+
+        .section-intro h2 {
+            font-size: 42px;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .section-intro p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--bg-gradient);
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--primary-light);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            color: var(--primary-color);
+            font-size: 32px;
+        }
+
+        .feature-card h3 {
+            font-size: 24px;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            font-size: 16px;
+        }
+
+        /* 数据展示区域 */
+        .stats-section {
+            margin-bottom: 80px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .stat-card {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-value {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 18px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* 页脚 */
+        .footer {
+            background-color: #1a1a2e;
+            color: white;
+            padding: 70px 0 40px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 50px;
+            margin-bottom: 60px;
+        }
+
+        .footer-column h3 {
+            font-size: 20px;
+            margin-bottom: 24px;
+            color: white;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column li {
+            margin-bottom: 12px;
+        }
+
+        .footer-column a {
+            color: #adb5bd;
+            transition: var(--transition);
+        }
+
+        .footer-column a:hover {
+            color: white;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #2d3047;
+            color: #adb5bd;
+            font-size: 14px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .container {
+                padding: 0 30px;
+            }
+
+            .hero-title {
+                font-size: 44px;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            .header {
+                padding: 12px 0;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero-title {
+                font-size: 36px;
+            }
+
+            .hero-subtitle {
+                font-size: 18px;
+            }
+
+            .match-card {
+                padding: 30px 20px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                margin-bottom: 30px;
+            }
+
+            .section-icon {
+                margin-bottom: 15px;
+            }
+
+            .btn {
+                padding: 16px 30px;
+                font-size: 16px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.3s;
+        }
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<!-- 顶部导航栏 -->
+<header class="header">
+    <div class="container nav-container">
+        <div class="logo-container">
+            <div class="logo-icon">
+                <i class="fas fa-chart-network"></i>
+            </div>
+            <div class="logo-text">KOL智能匹配</div>
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="index.html" class="active">智能匹配</a></li>
+            <li><a href="match.html">匹配结果</a></li>
+            <li><a href="decision.html">方案管理</a></li>
+            <li><a href="evaluation.html">效果分析</a></li>
+            <li><a href="#">达人库</a></li>
+            <li><a href="#">数据报告</a></li>
+        </ul>
+
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-name">朱信安</div>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </div>
+</header>
+
+<!-- 主内容区 -->
+<main class="main-content">
+    <!-- 英雄区域 -->
+    <section class="hero-section container">
+        <h1 class="hero-title fade-in-up">精准连接餐饮门店与优质达人</h1>
+        <p class="hero-subtitle fade-in-up delay-1">基于AI算法的智能匹配系统，帮助您找到最适合的KOL合作伙伴，提升营销效果与ROI</p>
+    </section>
+
+    <!-- 核心匹配区域 -->
+    <section class="match-container container fade-in-up delay-2">
+        <div class="match-card">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h2 class="section-title">智能匹配设置</h2>
+            </div>
+
+            <form id="match-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">门店名称</label>
+                        <input type="text" class="form-input" placeholder="请输入您的门店名称" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">门店类型</label>
+                        <select class="form-select" required>
+                            <option value="">请选择门店类型</option>
+                            <option value="hotpot">火锅</option>
+                            <option value="chinese">中餐</option>
+                            <option value="western">西餐</option>
+                            <option value="fastfood">快餐</option>
+                            <option value="dessert">甜品饮品</option>
+                            <option value="barbecue">烧烤</option>
+                            <option value="japanese">日料</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">所在城市</label>
+                        <select class="form-select" required>
+                            <option value="">请选择城市</option>
+                            <option value="beijing">北京</option>
+                            <option value="shanghai">上海</option>
+                            <option value="guangzhou">广州</option>
+                            <option value="shenzhen">深圳</option>
+                            <option value="chengdu">成都</option>
+                            <option value="hangzhou">杭州</option>
+                            <option value="chongqing">重庆</option>
+                            <option value="wuhan">武汉</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">客单价范围</label>
+                        <select class="form-select" required>
+                            <option value="">请选择客单价范围</option>
+                            <option value="low">50元以下</option>
+                            <option value="medium">50-100元</option>
+                            <option value="high">100-200元</option>
+                            <option value="luxury">200元以上</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">目标客群</label>
+                    <div class="tag-container">
+                        <span class="tag active">20-30岁</span>
+                        <span class="tag">女性为主</span>
+                        <span class="tag">家庭客群</span>
+                        <span class="tag">商务宴请</span>
+                        <span class="tag">学生群体</span>
+                        <span class="tag">白领阶层</span>
+                        <span class="tag">年轻情侣</span>
+                        <span class="tag">朋友聚会</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">营销预算</label>
+                    <div class="budget-container">
+                        <input type="range" min="1" max="50" value="15" class="budget-slider" id="budget-slider">
+                        <div class="budget-value" id="budget-value">15万元</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">内容形式偏好</label>
+                    <div class="tag-container">
+                        <span class="tag active">短视频</span>
+                        <span class="tag">直播</span>
+                        <span class="tag">图文</span>
+                        <span class="tag">探店视频</span>
+                        <span class="tag">美食评测</span>
+                        <span class="tag">Vlog记录</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">营销目标</label>
+                    <div class="tag-container">
+                        <span class="tag active">提升到店客流</span>
+                        <span class="tag">品牌曝光</span>
+                        <span class="tag">新品推广</span>
+                        <span class="tag">节日营销</span>
+                        <span class="tag">提升复购率</span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="match-btn">
+                        <i class="fas fa-search"></i> 开始智能匹配
+                    </button>
+                </div>
+            </form>
+
+            <div class="match-stats">
+                系统将从5,200+餐饮达人库中为您匹配最合适的合作伙伴
+            </div>
+        </div>
+    </section>
+
+    <!-- 功能卡片区域 -->
+    <section class="features-section container fade-in-up delay-3">
+        <div class="section-intro">
+            <h2>核心功能模块</h2>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>达人智能匹配</h3>
+                <p>基于门店画像与达人画像，AI算法智能推荐最佳匹配方案，解决传统KOL筛选低效问题</p>
+                <a href="match.html" class="btn btn-secondary">开始匹配</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>效果数据分析</h3>
+                <p>实时监控核销率与客流变化，多维度数据分析帮助您精准评估营销效果</p>
+                <a href="evaluation.html" class="btn btn-secondary">查看分析</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h3>达人资源库</h3>
+                <p>收录5,200+餐饮行业达人数据，包含粉丝画像、历史表现、合作案例等全方位信息</p>
+                <a href="#" class="btn btn-secondary">浏览达人</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-file-contract"></i>
+                </div>
+                <h3>方案管理与执行</h3>
+                <p>多方案可视化对比，选择最优策略并跟踪执行进度，确保项目顺利推进</p>
+                <a href="decision.html" class="btn btn-secondary">管理方案</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 数据展示区域 -->
+    <section class="stats-section container">
+        <div class="section-intro">
+            <h2>系统数据概览</h2>
+            <p>基于真实业务数据，系统持续优化匹配算法，为客户创造价值</p>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-value">5,240+</div>
+                <div class="stat-label">合作达人总数</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-value">3,150+</div>
+                <div class="stat-label">已服务门店</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-value">82%</div>
+                <div class="stat-label">平均核销率</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-value">3.8x</div>
+                <div class="stat-label">平均投资回报率</div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- 页脚 -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-column">
+                <h3>KOL智能匹配系统</h3>
+                <p style="color: #adb5bd; margin-bottom: 20px;">基于AI算法的餐饮行业KOL智能匹配解决方案，帮助餐饮企业实现精准营销。</p>
+            </div>
+
+            <div class="footer-column">
+                <h3>功能模块</h3>
+                <ul>
+                    <li><a href="index.html">智能匹配</a></li>
+                    <li><a href="match.html">匹配结果</a></li>
+                    <li><a href="decision.html">方案管理</a></li>
+                    <li><a href="evaluation.html">效果分析</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>资源</h3>
+                <ul>
+                    <li><a href="#">达人库</a></li>
+                    <li><a href="#">案例研究</a></li>
+                    <li><a href="#">使用指南</a></li>
+                    <li><a href="#">API文档</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>联系我们</h3>
+                <ul>
+                    <li><a href="#">邮箱：zhuxinan1@crb.cn</a></li>
+                    <li><a href="#">润工作联系： 朱信安 </a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="copyright">
+            <p>© 2025 餐饮KOL智能匹配系统 - AI大赛决赛 概念演示版本</p>
+            <p>注：本系统为概念演示，用于展示核心功能和流程，非完整实现版本。</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // 预算滑块实时显示
+    const budgetSlider = document.getElementById('budget-slider');
+    const budgetValue = document.getElementById('budget-value');
+
+    budgetSlider.addEventListener('input', function() {
+        budgetValue.textContent = this.value + '万元';
+    });
+
+    // 标签选择功能
+    document.querySelectorAll('.tag').forEach(tag => {
+        tag.addEventListener('click', function() {
+            // 获取父容器的类名，判断是否允许多选
+            const containerClass = this.parentElement.className;
+
+            // 如果是目标客群或内容形式，允许多选
+            if (containerClass.includes('tag-container')) {
+                this.classList.toggle('active');
+            }
+            // 其他情况单选
+            else {
+                const siblings = this.parentElement.querySelectorAll('.tag');
+                siblings.forEach(sibling => sibling.classList.remove('active'));
+                this.classList.add('active');
+            }
+        });
+    });
+
+    // 表单提交
+    document.getElementById('match-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const storeName = this.querySelector('input[type="text"]').value;
+        const storeType = this.querySelector('select').value;
+
+        if (!storeName.trim()) {
+            alert('请输入门店名称');
+            return;
+        }
+
+        if (!storeType) {
+            alert('请选择门店类型');
+            return;
+        }
+
+        // 显示加载状态
+        const matchBtn = document.getElementById('match-btn');
+        const originalText = matchBtn.innerHTML;
+        matchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 匹配中...';
+        matchBtn.disabled = true;
+
+        // 模拟匹配过程
+        setTimeout(() => {
+            // 恢复按钮状态
+            matchBtn.innerHTML = originalText;
+            matchBtn.disabled = false;
+
+            // 跳转到匹配结果页面
+            window.location.href = 'match.html';
+        }, 2000);
+    });
+
+    // 添加滚动动画
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('fade-in-up');
+            }
+        });
+    }, observerOptions);
+
+    // 观察需要动画的元素
+    document.querySelectorAll('.feature-card, .stat-card').forEach(el => {
+        observer.observe(el);
+    });
+
+    // 用户信息交互
+    document.querySelector('.user-info').addEventListener('click', function() {
+        alert('用户菜单：\n1. 个人资料\n2. 账户设置\n3. 退出登录');
+    });
+</script>
+</body>
+</html>
