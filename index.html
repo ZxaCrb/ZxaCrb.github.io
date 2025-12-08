@@ -1026,7 +1026,7 @@
     document.querySelectorAll('.feature-card, .stat-card').forEach(el => {
         observer.observe(el);
 
-                // 显示模态框
+                       // 显示模态框
         let currentModal = null;
         
         function showModal(title, content, size = 'md') {
@@ -1089,14 +1089,6 @@
                     from { transform: translateY(30px); opacity: 0; }
                     to { transform: translateY(0); opacity: 1; }
                 }
-                @keyframes slideIn {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOut {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
             `;
             document.head.appendChild(style);
             
@@ -1124,31 +1116,31 @@
             window.closeModal = closeModal;
         }
         
-               // 用户信息交互
-            document.querySelector('.user-info').addEventListener('click', function() {
-                showModal('用户菜单', `
-                    <div style="display: flex; flex-direction: column; gap: 15px;">
-                        <div style="display: flex; align-items: center; gap: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
-                            <div style="width: 60px; height: 60px; border-radius: 50%; background-color: var(--primary-color); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div>
-                                <h3 style="margin: 0 0 5px 0;">朱信安</h3>
-                                <p style="margin: 0; color: var(--text-secondary);">邮箱：zhuxinan1@crb.cn</p>
-                            </div>
+        // 用户信息交互
+        document.querySelector('.user-info').addEventListener('click', function() {
+            showModal('用户菜单', `
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div style="display: flex; align-items: center; gap: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background-color: var(--primary-color); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">
+                            <i class="fas fa-user"></i>
                         </div>
-                        <button class="btn btn-secondary" style="width: 100%;">个人资料</button>
-                        <button class="btn btn-secondary" style="width: 100%;">账户设置</button>
-                        <button class="btn btn-primary" style="width: 100%;">退出登录</button>
+                        <div>
+                            <h3 style="margin: 0 0 5px 0;">朱信安</h3>
+                            <p style="margin: 0; color: var(--text-secondary);">邮箱：zhuxinan1@crb.cn</p>
+                        </div>
                     </div>
-                `);
-            });
-    });
+                    <button class="btn btn-secondary" style="width: 100%;" onclick="closeModal()">个人资料</button>
+                    <button class="btn btn-secondary" style="width: 100%;" onclick="closeModal()">账户设置</button>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="closeModal()">退出登录</button>
+                </div>
+            `, 'sm');
+        });
 
  
 </script>
 </body>
 
 </html>
+
 
 
