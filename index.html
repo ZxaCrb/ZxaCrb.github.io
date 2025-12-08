@@ -1025,9 +1025,7 @@
     // 观察需要动画的元素
     document.querySelectorAll('.feature-card, .stat-card').forEach(el => {
         observer.observe(el);
-    });
-
-        // 用户信息交互
+               // 用户信息交互
             document.querySelector('.user-info').addEventListener('click', function() {
                 showModal('用户菜单', `
                     <div style="display: flex; flex-direction: column; gap: 15px;">
@@ -1046,7 +1044,11 @@
                     </div>
                 `);
             });
+    });
+
+ 
 </script>
 </body>
 
 </html>
+
