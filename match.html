@@ -3,634 +3,1539 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智能匹配引擎 - KOL智能匹配系统</title>
+    <title>匹配结果分析 - KOL智能匹配系统</title>
     <style>
-        /* 共享样式 - 与首页相同的导航和基础样式 */
+        /* 基础变量与重置 */
+        :root {
+            --primary-color: #4361ee;
+            --primary-light: #e0e7ff;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --success-color: #4cc9f0;
+            --warning-color: #f8961e;
+            --danger-color: #e63946;
+            --text-primary: #2b2d42;
+            --text-secondary: #6c757d;
+            --text-light: #adb5bd;
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --bg-gradient: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 20px 25px rgba(0, 0, 0, 0.12);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
-
+        
         body {
-            background-color: #f8f9fa;
-            color: #333;
-            line-height: 1.6;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-size: 16px;
+            overflow-x: hidden;
         }
-
+        
+        h1, h2, h3, h4, h5 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
+        }
+        
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 40px;
         }
-
-        /* 导航栏 */
-        header {
-            background: linear-gradient(135deg, #1a2980, #26d0ce);
-            color: white;
-            padding: 1rem 0;
+        
+        /* 顶部导航栏 - 与首页一致 */
+        .header {
+            background-color: var(--bg-secondary);
+            box-shadow: var(--shadow-sm);
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 16px 0;
         }
-
+        
         .nav-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
+        
+        .logo-container {
             display: flex;
             align-items: center;
         }
-
+        
         .logo-icon {
-            margin-right: 10px;
-            font-size: 2rem;
+            width: 48px;
+            height: 48px;
+            background: var(--bg-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            color: white;
+            font-size: 24px;
         }
-
-        nav ul {
+        
+        .logo-text {
+            font-size: 24px;
+            font-weight: 800;
+            background: var(--bg-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-links {
             display: flex;
             list-style: none;
+            gap: 32px;
         }
-
-        nav ul li {
-            margin-left: 1.5rem;
+        
+        .nav-links a {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-secondary);
+            padding: 10px 0;
+            position: relative;
         }
-
-        nav ul li a {
+        
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+        
+        .nav-links a.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--bg-gradient);
+            border-radius: 3px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            background-color: var(--primary-light);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .user-info:hover {
+            background-color: #d5deff;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            transition: background-color 0.3s;
+            font-weight: 600;
         }
-
-        nav ul li a:hover {
-            background-color: rgba(255,255,255,0.1);
+        
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
         }
-
-        /* 页面特定样式 */
+        
+        /* 主内容区 */
+        .main-content {
+            padding: 40px 0 100px;
+        }
+        
+        /* 页面标题区域 */
         .page-header {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .page-title h1 {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .page-title p {
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+        
+        .btn {
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: var(--bg-gradient);
             color: white;
-            padding: 3rem 0;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-3px);
+        }
+        
+        /* 匹配概览卡片 */
+        .match-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .overview-card {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .overview-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .overview-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+        
+        .overview-card:nth-child(1)::before {
+            background: linear-gradient(90deg, #4361ee 0%, #4cc9f0 100%);
+        }
+        
+        .overview-card:nth-child(2)::before {
+            background: linear-gradient(90deg, #f72585 0%, #f8961e 100%);
+        }
+        
+        .overview-card:nth-child(3)::before {
+            background: linear-gradient(90deg, #4cc9f0 0%, #3a0ca3 100%);
+        }
+        
+        .overview-card .icon {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+        
+        .overview-card:nth-child(1) .icon {
+            color: #4361ee;
+        }
+        
+        .overview-card:nth-child(2) .icon {
+            color: #f72585;
+        }
+        
+        .overview-card:nth-child(3) .icon {
+            color: #4cc9f0;
+        }
+        
+        .overview-card h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+        
+        .overview-card p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        
+        .overview-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+        
+        /* 筛选工具栏 */
+        .filter-toolbar {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .filter-header h2 {
+            font-size: 24px;
+            color: var(--text-primary);
+        }
+        
+        .filter-count {
+            font-weight: 600;
+            color: var(--primary-color);
+            background-color: var(--primary-light);
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+        
+        .filter-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .filter-group {
+            margin-bottom: 20px;
+        }
+        
+        .filter-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        
+        .filter-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: #f8f9fa;
+            transition: var(--transition);
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: white;
+        }
+        
+        /* 达人匹配结果列表 */
+        .results-section {
+            margin-bottom: 60px;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .section-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-light);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            color: var(--primary-color);
+            font-size: 28px;
+        }
+        
+        .section-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 30px;
+        }
+        
+        .result-card {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 30px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .result-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .result-card.recommended {
+            border: 3px solid var(--primary-color);
+        }
+        
+        .result-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-gradient);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .result-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            font-size: 36px;
+            color: var(--primary-color);
+            border: 3px solid var(--primary-light);
+        }
+        
+        .result-info h3 {
+            font-size: 22px;
+            margin-bottom: 5px;
+            color: var(--text-primary);
+        }
+        
+        .result-info p {
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .result-score {
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-top: 5px;
+        }
+        
+        .score-high {
+            background-color: #4CAF50;
+        }
+        
+        .score-medium {
+            background-color: #FF9800;
+        }
+        
+        .score-low {
+            background-color: #F44336;
+        }
+        
+        .result-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px 0;
+            border-top: 1px solid #e9ecef;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .metric-item {
             text-align: center;
-            margin-bottom: 3rem;
         }
-
-        .page-header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+        
+        .metric-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
         }
-
-        .page-header p {
-            font-size: 1.2rem;
+        
+        .metric-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .result-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .tag {
+            padding: 6px 12px;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .result-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .btn-small {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        
+        /* 匹配分析图表区 */
+        .analysis-section {
+            margin-bottom: 60px;
+        }
+        
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+        }
+        
+        .analysis-card {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 30px;
+            transition: var(--transition);
+        }
+        
+        .analysis-card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .analysis-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .analysis-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--primary-color);
+            font-size: 24px;
+        }
+        
+        .analysis-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .chart-container {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-placeholder {
+            text-align: center;
+            color: var(--text-secondary);
+        }
+        
+        .chart-placeholder i {
+            font-size: 60px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .chart-placeholder h4 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        
+        .chart-description {
+            font-size: 16px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+        
+        /* 操作指引 */
+        .guidance-section {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 60px;
+        }
+        
+        .guidance-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .guidance-header h2 {
+            font-size: 32px;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+        }
+        
+        .guidance-header p {
+            font-size: 18px;
+            color: var(--text-secondary);
             max-width: 800px;
             margin: 0 auto;
         }
-
-        .matching-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2rem;
-            margin-bottom: 4rem;
+        
+        .guidance-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
         }
-
-        .demand-input {
-            flex: 1;
-            min-width: 300px;
-            background-color: white;
-            border-radius: 8px;
-            padding: 2rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-
-        .matching-results {
-            flex: 2;
-            min-width: 300px;
-            background-color: white;
-            border-radius: 8px;
-            padding: 2rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-
-        .tag-selector {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .tag {
-            padding: 0.5rem 1rem;
-            background-color: #f1f1f1;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .tag:hover, .tag.active {
-            background-color: #2196F3;
-            color: white;
-        }
-
-        .budget-slider-container {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .budget-slider {
-            flex: 1;
-        }
-
-        .budget-value {
-            font-weight: bold;
-            color: #2196F3;
-            min-width: 80px;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 0.8rem 2rem;
-            background-color: #2196F3;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .btn:hover {
-            background-color: #0d8bf2;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
-        }
-
-        .match-card {
-            display: flex;
-            align-items: center;
-            padding: 1.5rem;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            transition: all 0.3s;
-        }
-
-        .match-card:hover {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transform: translateY(-3px);
-        }
-
-        .match-score {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #4CAF50;
-            margin-right: 1.5rem;
-            min-width: 80px;
+        
+        .step-card {
             text-align: center;
+            padding: 30px 20px;
+            border-radius: var(--border-radius);
+            background-color: #f8f9fa;
+            transition: var(--transition);
         }
-
-        .influencer-info {
-            flex: 1;
+        
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
         }
-
-        .influencer-info h4 {
-            margin-bottom: 0.5rem;
-            color: #2c3e50;
-        }
-
-        .match-reasons {
+        
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: var(--bg-gradient);
+            color: white;
+            border-radius: 50%;
             display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 0.8rem;
-        }
-
-        .match-tag {
-            padding: 0.3rem 0.8rem;
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            border-radius: 4px;
-            font-size: 0.9rem;
-        }
-
-        .visualization-container {
-            background-color: white;
-            border-radius: 8px;
-            padding: 2rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            margin-bottom: 4rem;
-        }
-
-        .chart-container {
-            height: 400px;
-            margin-top: 2rem;
-            border: 1px solid #eee;
-            border-radius: 4px;
-            padding: 1rem;
-            display: flex;
+            align-items: center;
             justify-content: center;
-            align-items: center;
-            background-color: #f9f9f9;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 auto 20px;
         }
-
-        .chart-placeholder {
-            text-align: center;
-            color: #666;
+        
+        .step-card h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--text-primary);
         }
-
-        .chart-placeholder i {
-            font-size: 3rem;
-            color: #2196F3;
-            margin-bottom: 1rem;
+        
+        .step-card p {
+            color: var(--text-secondary);
+            font-size: 16px;
         }
-
-        .navigation-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 3rem;
-            padding-top: 2rem;
-            border-top: 1px solid #eee;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-        }
-
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-
-        footer {
-            background-color: #2c3e50;
+        
+        /* 页脚 */
+        .footer {
+            background-color: #1a1a2e;
             color: white;
-            padding: 3rem 0 1.5rem;
-            text-align: center;
+            padding: 70px 0 40px;
         }
-
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            margin-bottom: 2rem;
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 50px;
+            margin-bottom: 60px;
         }
-
-        .footer-section {
-            flex: 1;
-            min-width: 250px;
-            margin-bottom: 1.5rem;
+        
+        .footer-column h3 {
+            font-size: 20px;
+            margin-bottom: 24px;
+            color: white;
         }
-
-        .footer-section h3 {
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
+        
+        .footer-column ul {
+            list-style: none;
         }
-
+        
+        .footer-column li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-column a {
+            color: #adb5bd;
+            transition: var(--transition);
+        }
+        
+        .footer-column a:hover {
+            color: white;
+        }
+        
         .copyright {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.7);
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #2d3047;
+            color: #adb5bd;
+            font-size: 14px;
         }
-
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .container {
+                padding: 0 30px;
+            }
+            
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .guidance-steps {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
         @media (max-width: 768px) {
-            .nav-container {
-                flex-direction: column;
+            .container {
+                padding: 0 20px;
             }
-
-            nav ul {
-                margin-top: 1rem;
-                flex-wrap: wrap;
-                justify-content: center;
+            
+            .header {
+                padding: 12px 0;
             }
-
-            nav ul li {
-                margin: 0.3rem;
+            
+            .nav-links {
+                display: none;
             }
+            
+            .page-title h1 {
+                font-size: 28px;
+            }
+            
+            .section-title {
+                font-size: 24px;
+            }
+            
+            .guidance-steps {
+                grid-template-columns: 1fr;
+            }
+            
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .match-overview {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-options {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        
+        .delay-1 {
+            animation-delay: 0.1s;
+        }
+        
+        .delay-2 {
+            animation-delay: 0.2s;
+        }
+        
+        .delay-3 {
+            animation-delay: 0.3s;
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
         }
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-<!-- 导航栏 -->
-<header>
-    <div class="container nav-container">
-        <div class="logo">
-            <span class="logo-icon">🤖</span>
-            <span>KOL智能匹配系统</span>
-        </div>
-        <nav>
-            <ul>
-                <li><a href="index.html">首页</a></li>
-                <li><a href="match.html">智能匹配</a></li>
-                <li><a href="decision.html">方案决策</a></li>
-                <li><a href="evaluation.html">效果评估</a></li>
+    <!-- 顶部导航栏 -->
+    <header class="header">
+        <div class="container nav-container">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-chart-network"></i>
+                </div>
+                <div class="logo-text">KOL智能匹配</div>
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="index.html">智能匹配</a></li>
+                <li><a href="match.html" class="active">匹配结果</a></li>
+                <li><a href="decision.html">方案管理</a></li>
+                <li><a href="evaluation.html">效果分析</a></li>
+                <li><a href="#">达人库</a></li>
+                <li><a href="#">数据报告</a></li>
             </ul>
-        </nav>
-    </div>
-</header>
-
-<!-- 页面标题 -->
-<section class="page-header">
-    <div class="container">
-        <h1>智能匹配引擎</h1>
-        <p>基于门店画像与达人画像，AI算法智能推荐最佳匹配方案，解决传统KOL筛选低效问题</p>
-    </div>
-</section>
-
-<!-- 匹配演示区域 -->
-<div class="container">
-    <div class="matching-container">
-        <!-- 左侧：需求输入 -->
-        <div class="demand-input">
-            <h2 style="margin-bottom: 1.5rem; color: #2c3e50;">输入门店需求</h2>
-            <div class="form-group">
-                <label for="store-type">门店类型：</label>
-                <select id="store-type">
-                    <option value="hotpot">火锅</option>
-                    <option value="chinese">中餐</option>
-                    <option value="western">西餐</option>
-                    <option value="fastfood">快餐</option>
-                    <option value="dessert">甜品饮品</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="budget">预算范围：</label>
-                <div class="budget-slider-container">
-                    <input type="range" id="budget" class="budget-slider" min="1" max="50" value="15">
-                    <span id="budget-display" class="budget-value">15万元</span>
+            
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
                 </div>
+                <div class="user-name">张经理</div>
+                <i class="fas fa-chevron-down"></i>
             </div>
-
-            <div class="form-group">
-                <label>目标客群：</label>
-                <div class="tag-selector">
-                    <span class="tag active" data-value="young">20-30岁</span>
-                    <span class="tag" data-value="female">女性为主</span>
-                    <span class="tag" data-value="family">家庭客群</span>
-                    <span class="tag" data-value="business">商务宴请</span>
-                    <span class="tag" data-value="student">学生群体</span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="city">所在城市：</label>
-                <select id="city">
-                    <option value="beijing">北京</option>
-                    <option value="shanghai">上海</option>
-                    <option value="guangzhou">广州</option>
-                    <option value="shenzhen">深圳</option>
-                    <option value="chengdu">成都</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="content-type">内容形式偏好：</label>
-                <div class="tag-selector">
-                    <span class="tag active" data-value="video">短视频</span>
-                    <span class="tag" data-value="live">直播</span>
-                    <span class="tag" data-value="article">图文</span>
-                </div>
-            </div>
-
-            <button id="run-matching" class="btn" style="width: 100%; padding: 1rem; font-size: 1.1rem;">
-                <i class="fas fa-search"></i> 开始智能匹配
-            </button>
         </div>
+    </header>
 
-        <!-- 右侧：匹配结果 -->
-        <div class="matching-results">
-            <h2 style="margin-bottom: 1.5rem; color: #2c3e50;">推荐达人列表</h2>
-            <p style="margin-bottom: 1.5rem; color: #666;">系统根据您的需求，从达人库中智能匹配最合适的KOL</p>
-
-            <div id="results-container">
-                <!-- 匹配结果将动态生成 -->
-                <div class="match-card">
-                    <div class="match-score">94%</div>
-                    <div class="influencer-info">
-                        <h4>@美食探探 (抖音: 85.2万粉丝)</h4>
-                        <p>餐饮类视频占比68%，历史合作平均核销率82%</p>
-                        <div class="match-reasons">
-                            <span class="match-tag">客群匹配度高</span>
-                            <span class="match-tag">内容风格契合</span>
-                            <span class="match-tag">转化率优秀</span>
-                        </div>
-                    </div>
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 页面标题与操作 -->
+        <div class="container">
+            <div class="page-header fade-in-up">
+                <div class="page-title">
+                    <h1>匹配结果分析</h1>
+                    <p>系统已根据您的需求，从5,200+餐饮达人库中筛选出最合适的合作伙伴</p>
                 </div>
-
-                <div class="match-card">
-                    <div class="match-score">88%</div>
-                    <div class="influencer-info">
-                        <h4>@吃货小分队 (小红书: 42.3万粉丝)</h4>
-                        <p>专注本地美食探店，女性粉丝占比78%</p>
-                        <div class="match-reasons">
-                            <span class="match-tag">目标客群精准</span>
-                            <span class="match-tag">内容质量高</span>
-                            <span class="match-tag">互动率优秀</span>
-                        </div>
-                    </div>
+                <div class="page-actions">
+                    <a href="index.html" class="btn btn-secondary">
+                        <i class="fas fa-redo"></i> 重新匹配
+                    </a>
                 </div>
-
-                <div class="match-card">
-                    <div class="match-score">85%</div>
-                    <div class="influencer-info">
-                        <h4>@探店王大哥 (抖音: 120万粉丝)</h4>
-                        <p>火锅类内容专家，30-40岁男性粉丝为主</p>
-                        <div class="match-reasons">
-                            <span class="match-tag">垂直领域专家</span>
-                            <span class="match-tag">粉丝粘性高</span>
-                        </div>
+            </div>
+            
+            <!-- 匹配概览 -->
+            <div class="match-overview fade-in-up delay-1">
+                <div class="overview-card">
+                    <div class="icon">
+                        <i class="fas fa-user-check"></i>
                     </div>
+                    <h3>匹配达人数量</h3>
+                    <p>系统为您筛选出的合适达人数量</p>
+                    <div class="overview-value">24 位</div>
                 </div>
-
-                <div class="match-card">
-                    <div class="match-score">79%</div>
-                    <div class="influencer-info">
-                        <h4>@美食日记 (B站: 56.7万粉丝)</h4>
-                        <p>长视频深度内容，学生群体覆盖率35%</p>
-                        <div class="match-reasons">
-                            <span class="match-tag">内容深度好</span>
-                            <span class="match-tag">年轻客群覆盖</span>
-                        </div>
+                
+                <div class="overview-card">
+                    <div class="icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>平均匹配度</h3>
+                    <p>所有推荐达人与您需求匹配的平均分数</p>
+                    <div class="overview-value">86.4%</div>
+                </div>
+                
+                <div class="overview-card">
+                    <div class="icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3>最高匹配度</h3>
+                    <p>匹配度最高的达人分数</p>
+                    <div class="overview-value">94.2%</div>
+                </div>
+            </div>
+            
+            <!-- 筛选工具栏 -->
+            <div class="filter-toolbar fade-in-up delay-1">
+                <div class="filter-header">
+                    <h2>筛选与排序</h2>
+                    <div class="filter-count">24 个结果</div>
+                </div>
+                
+                <div class="filter-options">
+                    <div class="filter-group">
+                        <label>按匹配度排序</label>
+                        <select class="filter-select" id="sort-by-score">
+                            <option value="high-to-low">从高到低</option>
+                            <option value="low-to-high">从低到高</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>按粉丝量筛选</label>
+                        <select class="filter-select" id="filter-followers">
+                            <option value="all">全部</option>
+                            <option value="10-50">10-50万</option>
+                            <option value="50-100">50-100万</option>
+                            <option value="100+">100万以上</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>按平台筛选</label>
+                        <select class="filter-select" id="filter-platform">
+                            <option value="all">全部平台</option>
+                            <option value="douyin">抖音</option>
+                            <option value="xiaohongshu">小红书</option>
+                            <option value="bilibili">B站</option>
+                            <option value="kuaishou">快手</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>按内容形式</label>
+                        <select class="filter-select" id="filter-content">
+                            <option value="all">全部形式</option>
+                            <option value="video">短视频</option>
+                            <option value="live">直播</option>
+                            <option value="article">图文</option>
+                            <option value="vlog">Vlog</option>
+                        </select>
                     </div>
                 </div>
             </div>
+            
+            <!-- 匹配结果列表 -->
+            <section class="results-section fade-in-up delay-2">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h2 class="section-title">推荐达人列表</h2>
+                </div>
+                
+                <div class="results-grid">
+                    <!-- 达人卡片 1 -->
+                    <div class="result-card recommended">
+                        <div class="result-badge">强烈推荐</div>
+                        
+                        <div class="result-header">
+                            <div class="result-avatar">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="result-info">
+                                <h3>@美食探探君</h3>
+                                <p>抖音 · 85.2万粉丝</p>
+                                <span class="result-score score-high">94.2% 匹配度</span>
+                            </div>
+                        </div>
+                        
+                        <div class="result-metrics">
+                            <div class="metric-item">
+                                <div class="metric-value">82%</div>
+                                <div class="metric-label">历史核销率</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">4.8%</div>
+                                <div class="metric-label">平均互动率</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">¥68K</div>
+                                <div class="metric-label">参考报价</div>
+                            </div>
+                        </div>
+                        
+                        <div class="result-tags">
+                            <span class="tag">火锅专家</span>
+                            <span class="tag">20-30岁受众</span>
+                            <span class="tag">短视频达人</span>
+                            <span class="tag">高转化率</span>
+                        </div>
+                        
+                        <div class="result-actions">
+                            <button class="btn btn-primary btn-small view-detail-btn" data-id="1">
+                                <i class="fas fa-eye"></i> 查看详情
+                            </button>
+                            <button class="btn btn-secondary btn-small add-to-plan-btn" data-id="1">
+                                <i class="fas fa-plus"></i> 加入方案
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 达人卡片 2 -->
+                    <div class="result-card">
+                        <div class="result-header">
+                            <div class="result-avatar">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div class="result-info">
+                                <h3>@吃货小分队</h3>
+                                <p>小红书 · 42.3万粉丝</p>
+                                <span class="result-score score-high">91.5% 匹配度</span>
+                            </div>
+                        </div>
+                        
+                        <div class="result-metrics">
+                            <div class="metric-item">
+                                <div class="metric-value">78%</div>
+                                <div class="metric-label">历史核销率</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">5.2%</div>
+                                <div class="metric-label">平均互动率</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">¥42K</div>
+                                <div class="metric-label">参考报价</div>
+                            </div>
+                        </div>
+                        
+                        <div class="result-tags">
+                            <span class="tag">女性粉丝为主</span>
+                            <span class="tag">本地探店</span>
+                            <span class="tag">图文达人</span>
+                            <span class="tag">高互动率</span>
+                        </div>
+                        
+                        <div class="result-actions">
+                            <button class="btn btn-primary btn-small view-detail-btn" data-id="2">
+                                <i class="fas fa-eye"></i> 查看详情
+                            </button>
+                            <button class="btn btn-secondary btn-small add-to-plan-btn" data-id="2">
+                                <i class="fas fa-plus"></i> 加入方案
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 达人卡片 3 -->
+                    <div class="result-card">
+                        <div class="result-header">
+                            <div class="result-avatar">
+                                <i class="fas fa-hamburger"></i>
+                            </div>
+                            <div class="result-info">
+                                <h3>@探店王大哥</h3>
+                                <p>抖音 · 120万粉丝</p>
+                                <span class="result-score score-high">89.7% 匹配度</span>
+                            </div>
+                        </div>
+                        
+                        <div class="result-metrics">
+                            <div class="metric-item">
+                                <div class="metric-value">75%</div>
+                                <div class="metric-label">历史核销率</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">3.8%</div>
+                                <div class="metric-label">平均互动率</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">¥85K</div>
+                                <div class="metric-label">参考报价</div>
+                            </div>
+                        </div>
+                        
+                        <div class="result-tags">
+                            <span class="tag">火锅专家</span>
+                            <span class="tag">男性粉丝为主</span>
+                            <span class="tag">大胃王</span>
+                            <span class="tag">高客单价</span>
+                        </div>
+                        
+                        <div class="result-actions">
+                            <button class="btn btn-primary btn-small view-detail-btn" data-id="3">
+                                <i class="fas fa-eye"></i> 查看详情
+                            </button>
+                            <button class="btn btn-secondary btn-small add-to-plan-btn" data-id="3">
+                                <i class="fas fa-plus"></i> 加入方案
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 匹配分析 -->
+            <section class="analysis-section fade-in-up delay-3">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h2 class="section-title">匹配维度分析</h2>
+                </div>
+                
+                <div class="analysis-grid">
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <div class="analysis-icon">
+                                <i class="fas fa-radar"></i>
+                            </div>
+                            <h3 class="analysis-title">匹配维度雷达图</h3>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <div class="chart-placeholder">
+                                <i class="fas fa-chart-radar"></i>
+                                <h4>匹配维度可视化</h4>
+                                <p>展示客群匹配、内容风格、历史表现等核心维度</p>
+                            </div>
+                        </div>
+                        
+                        <p class="chart-description">
+                            雷达图展示了推荐达人与您门店需求在各个维度的匹配情况，包括客群匹配度、内容风格契合度、历史转化表现等。
+                        </p>
+                    </div>
+                    
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <div class="analysis-icon">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <h3 class="analysis-title">达人平台分布</h3>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <div class="chart-placeholder">
+                                <i class="fas fa-pie-chart"></i>
+                                <h4>平台分布分析</h4>
+                                <p>展示推荐达人的平台分布情况</p>
+                            </div>
+                        </div>
+                        
+                        <p class="chart-description">
+                            饼图展示了推荐达人在不同平台的分布情况，帮助您了解各平台的达人资源丰富度和匹配度。
+                        </p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 操作指引 -->
+            <section class="guidance-section fade-in-up">
+                <div class="guidance-header">
+                    <h2>下一步操作指引</h2>
+                    <p>根据匹配结果，您可以按照以下步骤继续推进合作</p>
+                </div>
+                
+                <div class="guidance-steps">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h3>查看达人详情</h3>
+                        <p>点击"查看详情"按钮，深入了解达人的粉丝画像、历史案例和合作数据</p>
+                    </div>
+                    
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h3>加入合作方案</h3>
+                        <p>选择适合的达人，点击"加入方案"按钮，开始构建您的营销方案</p>
+                    </div>
+                    
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h3>优化筛选条件</h3>
+                        <p>使用上方的筛选工具，根据您的特定需求进一步优化匹配结果</p>
+                    </div>
+                    
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <h3>生成最终方案</h3>
+                        <p>前往"方案管理"页面，组合多个达人创建完整的营销方案</p>
+                    </div>
+                </div>
+            </section>
         </div>
-    </div>
+    </main>
 
-    <!-- 可视化图表区域 -->
-    <div class="visualization-container">
-        <h2 style="margin-bottom: 1.5rem; color: #2c3e50;">匹配维度分析</h2>
-        <p style="margin-bottom: 1.5rem; color: #666;">雷达图展示推荐达人与您门店需求的匹配维度</p>
-
-        <div class="chart-container">
-            <div class="chart-placeholder">
-                <i class="fas fa-chart-radar"></i>
-                <h3>匹配维度雷达图</h3>
-                <p>此处将展示客群匹配度、内容风格匹配、历史转化表现等维度的可视化分析</p>
-                <p><small>在实际系统中，这里将显示交互式雷达图</small></p>
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <h3>KOL智能匹配系统</h3>
+                    <p style="color: #adb5bd; margin-bottom: 20px;">基于AI算法的餐饮行业KOL智能匹配解决方案，帮助餐饮企业实现精准营销。</p>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>功能模块</h3>
+                    <ul>
+                        <li><a href="index.html">智能匹配</a></li>
+                        <li><a href="match.html">匹配结果</a></li>
+                        <li><a href="decision.html">方案管理</a></li>
+                        <li><a href="evaluation.html">效果分析</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>资源</h3>
+                    <ul>
+                        <li><a href="#">达人库</a></li>
+                        <li><a href="#">案例研究</a></li>
+                        <li><a href="#">使用指南</a></li>
+                        <li><a href="#">API文档</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>联系我们</h3>
+                    <ul>
+                        <li><a href="#">客服支持</a></li>
+                        <li><a href="#">商务合作</a></li>
+                        <li><a href="#">意见反馈</a></li>
+                        <li><a href="#">关于我们</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                © 2024 KOL智能匹配系统. 保留所有权利. | 京ICP备12345678号
             </div>
         </div>
-    </div>
+    </footer>
 
-    <!-- 导航按钮 -->
-    <div class="navigation-buttons">
-        <a href="index.html" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> 返回首页
-        </a>
-        <a href="decision.html" class="btn">
-            下一步：方案决策 <i class="fas fa-arrow-right"></i>
-        </a>
-    </div>
-</div>
-
-<!-- 页脚 -->
-<footer>
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>KOL智能匹配系统</h3>
-                <p>基于AI的餐饮行业KOL智能匹配解决方案，帮助餐饮企业实现精准营销。</p>
-            </div>
-            <div class="footer-section">
-                <h3>功能模块</h3>
-                <ul style="list-style: none;">
-                    <li><a href="match.html" style="color: #ddd; text-decoration: none;">智能匹配引擎</a></li>
-                    <li><a href="decision.html" style="color: #ddd; text-decoration: none;">方案决策与执行</a></li>
-                    <li><a href="evaluation.html" style="color: #ddd; text-decoration: none;">效果评估与优化</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>联系我们</h3>
-                <p>邮箱: zhuxinan1@crb.cn</p>
-                <p>润工作联系: 朱信安</p>
-            </div>
-        </div>
-        <div class="copyright">
-            <p>© 2025 餐饮KOL智能匹配系统 - AI大赛决赛 概念演示版本</p>
-            <p>注：本系统为概念演示，用于展示核心功能和流程，非完整实现版本。</p>
-        </div>
-    </div>
-</footer>
-
-<script>
-    // 预算滑块
-    const budgetSlider = document.getElementById('budget');
-    const budgetDisplay = document.getElementById('budget-display');
-
-    budgetSlider.addEventListener('input', function() {
-        budgetDisplay.textContent = this.value + '万元';
-    });
-
-    // 标签选择
-    document.querySelectorAll('.tag').forEach(tag => {
-        tag.addEventListener('click', function() {
-            this.classList.toggle('active');
+    <script>
+        // 筛选功能
+        document.querySelectorAll('.filter-select').forEach(select => {
+            select.addEventListener('change', function() {
+                filterResults();
+            });
         });
-    });
-
-    // 模拟匹配算法
-    document.getElementById('run-matching').addEventListener('click', function() {
-        const storeType = document.getElementById('store-type').value;
-        const budget = document.getElementById('budget').value;
-        const city = document.getElementById('city').value;
-
-        // 显示加载状态
-        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 匹配中...';
-        this.disabled = true;
-
-        // 模拟匹配过程
-        setTimeout(() => {
-            // 更新匹配结果
-            const resultsContainer = document.getElementById('results-container');
-
-            // 根据选择调整匹配分数
-            const cards = resultsContainer.querySelectorAll('.match-card');
-            const scores = [94, 88, 85, 79];
-
-            // 简单模拟：根据预算调整分数
-            const budgetFactor = budget > 20 ? 1.1 : budget < 10 ? 0.9 : 1;
-
-            cards.forEach((card, index) => {
-                const scoreElement = card.querySelector('.match-score');
-                let newScore = scores[index];
-
-                // 根据选择调整
-                if (storeType === 'hotpot' && index === 2) {
-                    newScore += 5; // 火锅专家加分
+        
+        function filterResults() {
+            // 模拟筛选过程
+            const resultCards = document.querySelectorAll('.result-card');
+            let visibleCount = 0;
+            
+            resultCards.forEach(card => {
+                card.style.display = 'block';
+                visibleCount++;
+            });
+            
+            // 更新结果数量
+            document.querySelector('.filter-count').textContent = `${visibleCount} 个结果`;
+            
+            // 显示筛选提示
+            if (visibleCount < resultCards.length) {
+                showNotification(`已筛选出 ${visibleCount} 个匹配结果`);
+            }
+        }
+        
+        // 查看详情功能
+        document.querySelectorAll('.view-detail-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const influencerId = this.getAttribute('data-id');
+                showInfluencerDetail(influencerId);
+            });
+        });
+        
+        function showInfluencerDetail(id) {
+            const influencers = {
+                1: {
+                    name: "@美食探探君",
+                    platform: "抖音",
+                    followers: "85.2万",
+                    matchScore: "94.2%",
+                    description: "专注火锅品类的美食探店达人，粉丝以20-30岁年轻白领为主，历史合作平均核销率82%，内容质量高，转化效果稳定。"
+                },
+                2: {
+                    name: "@吃货小分队",
+                    platform: "小红书",
+                    followers: "42.3万",
+                    matchScore: "91.5%",
+                    description: "以女性粉丝为主的本地探店达人，擅长图文内容创作，互动率高，粉丝粘性强，特别适合针对女性客群的营销活动。"
+                },
+                3: {
+                    name: "@探店王大哥",
+                    platform: "抖音",
+                    followers: "120万",
+                    matchScore: "89.7%",
+                    description: "大胃王类型的美食探店达人，粉丝以男性为主，客单价较高，适合推广中高端餐饮产品或大型套餐。"
                 }
-
-                if (city === 'chengdu' && index === 0) {
-                    newScore += 3; // 成都本地达人加分
+            };
+            
+            const influencer = influencers[id];
+            if (influencer) {
+                const detailHtml = `
+                    <h3>${influencer.name}</h3>
+                    <p><strong>平台：</strong>${influencer.platform}</p>
+                    <p><strong>粉丝量：</strong>${influencer.followers}</p>
+                    <p><strong>匹配度：</strong>${influencer.matchScore}</p>
+                    <p><strong>达人描述：</strong>${influencer.description}</p>
+                `;
+                
+                showModal("达人详情", detailHtml);
+            }
+        }
+        
+        // 加入方案功能
+        document.querySelectorAll('.add-to-plan-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const influencerId = this.getAttribute('data-id');
+                addToPlan(influencerId);
+            });
+        });
+        
+        function addToPlan(id) {
+            // 模拟添加到方案
+            const influencers = {
+                1: "@美食探探君",
+                2: "@吃货小分队",
+                3: "@探店王大哥"
+            };
+            
+            const name = influencers[id];
+            if (name) {
+                // 更新按钮状态
+                const button = document.querySelector(`.add-to-plan-btn[data-id="${id}"]`);
+                button.innerHTML = '<i class="fas fa-check"></i> 已添加';
+                button.classList.remove('btn-secondary');
+                button.classList.add('btn-primary');
+                button.disabled = true;
+                
+                showNotification(`已将 ${name} 添加到方案`);
+                
+                // 保存到本地存储
+                let currentPlan = JSON.parse(localStorage.getItem('currentPlan') || '[]');
+                if (!currentPlan.includes(id)) {
+                    currentPlan.push(id);
+                    localStorage.setItem('currentPlan', JSON.stringify(currentPlan));
                 }
-
-                newScore = Math.min(99, Math.round(newScore * budgetFactor));
-                scoreElement.textContent = newScore + '%';
-
-                // 颜色区分
-                if (newScore >= 90) {
-                    scoreElement.style.color = '#4CAF50';
-                } else if (newScore >= 80) {
-                    scoreElement.style.color = '#8BC34A';
-                } else {
-                    scoreElement.style.color = '#FFC107';
+            }
+        }
+        
+        // 显示通知
+        function showNotification(message) {
+            // 创建通知元素
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background-color: var(--primary-color);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 8px;
+                box-shadow: var(--shadow-lg);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-check-circle"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // 3秒后移除
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+            
+            // 添加动画样式
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // 显示模态框
+        function showModal(title, content) {
+            // 创建模态框
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    background-color: white;
+                    border-radius: 12px;
+                    padding: 30px;
+                    max-width: 500px;
+                    width: 90%;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                    box-shadow: var(--shadow-lg);
+                    animation: slideUp 0.3s ease;
+                ">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="margin: 0; color: var(--text-primary);">${title}</h2>
+                        <button id="close-modal" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary);">&times;</button>
+                    </div>
+                    <div style="color: var(--text-secondary); line-height: 1.6;">
+                        ${content}
+                    </div>
+                    <div style="margin-top: 30px; text-align: right;">
+                        <button class="btn btn-primary" id="modal-close-btn">关闭</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 添加动画样式
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes slideUp {
+                    from { transform: translateY(30px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // 关闭按钮事件
+            document.getElementById('close-modal').addEventListener('click', () => {
+                document.body.removeChild(modal);
+                document.head.removeChild(style);
+            });
+            
+            document.getElementById('modal-close-btn').addEventListener('click', () => {
+                document.body.removeChild(modal);
+                document.head.removeChild(style);
+            });
+            
+            // 点击背景关闭
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                    document.head.removeChild(style);
                 }
             });
-
-            // 按分数排序
-            const cardsArray = Array.from(cards);
-            cardsArray.sort((a, b) => {
-                const scoreA = parseInt(a.querySelector('.match-score').textContent);
-                const scoreB = parseInt(b.querySelector('.match-score').textContent);
-                return scoreB - scoreA;
+        }
+        
+        // 初始化页面时检查已添加的达人
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPlan = JSON.parse(localStorage.getItem('currentPlan') || '[]');
+            currentPlan.forEach(id => {
+                const button = document.querySelector(`.add-to-plan-btn[data-id="${id}"]`);
+                if (button) {
+                    button.innerHTML = '<i class="fas fa-check"></i> 已添加';
+                    button.classList.remove('btn-secondary');
+                    button.classList.add('btn-primary');
+                    button.disabled = true;
+                }
             });
-
-            // 重新排列
-            cardsArray.forEach(card => {
-                resultsContainer.appendChild(card);
+            
+            // 用户信息交互
+            document.querySelector('.user-info').addEventListener('click', function() {
+                showModal('用户菜单', `
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <div style="display: flex; align-items: center; gap: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+                            <div style="width: 60px; height: 60px; border-radius: 50%; background-color: var(--primary-color); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0 0 5px 0;">张经理</h3>
+                                <p style="margin: 0; color: var(--text-secondary);">admin@company.com</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" style="width: 100%;">个人资料</button>
+                        <button class="btn btn-secondary" style="width: 100%;">账户设置</button>
+                        <button class="btn btn-primary" style="width: 100%;">退出登录</button>
+                    </div>
+                `);
             });
-
-            // 恢复按钮状态
-            this.innerHTML = '<i class="fas fa-search"></i> 开始智能匹配';
-            this.disabled = false;
-
-            // 显示成功提示
-            alert('匹配完成！已根据您的需求调整推荐顺序。');
-        }, 1500);
-    });
-</script>
+        });
+    </script>
 </body>
 </html>
